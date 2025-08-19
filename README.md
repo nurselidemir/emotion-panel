@@ -80,31 +80,80 @@ Accuracy değerleri /models/performance ve backend’deki MODEL_PERFORMANCE ile 
 | wav2vec2       | Audio    | RAVDESS speech audio   | 86.81        |
 
 
+
 ## API
-### 1) Modelleri listele
- GET /models
- Örnek yanıt:
 
+### 1) Modelleri Listele
+**GET** `/models`  
 
-```bash
+Örnek yanıt:
+```json
 {
-  "image": [{"name": "googlenet", "accuracy": "81.84%"}],
-  "video": [{"name": "resnet18_video", "accuracy": "91.26%"}],
-  "audio": [{"name": "wav2vec2", "accuracy": "86.81%"}]
+  "image": [
+    {"name": "googlenet", "accuracy": "81.84%"}
+  ],
+  "video": [
+    {"name": "resnet18_video", "accuracy": "91.26%"}
+  ],
+  "audio": [
+    {"name": "wav2vec2", "accuracy": "86.81%"}
+  ]
+}
+```
+### 2) Performans Metrikleri
+**GET** `/models/performance`  
+
+Örnek yanıt:
+```json
+{
+  "googlenet": {
+    "dataset": "Fer2013Plus",
+    "accuracy": "81.84%",
+    "train_time": "2385.17s",
+    "test_time": "44.08s"
+  },
+  "fast_rcnn": {
+    "dataset": "Fer2013Plus",
+    "accuracy": "81.11%",
+    "train_time": "1380.10s",
+    "test_time": "277.5s"
+  },
+  "ferformer": {
+    "dataset": "Fer2013Plus",
+    "accuracy": "72.47%",
+    "train_time": "10246.47s",
+    "test_time": "83.15s"
+  },
+  "mobilevit": {
+    "dataset": "Fer2013Plus",
+    "accuracy": "81.76%"
+  },
+  "efficientfer": {
+    "dataset": "Fer2013Plus",
+    "accuracy": "78.94%"
+  },
+  "resnet18_video": {
+    "dataset": "RAVDESS speech video",
+    "accuracy": "91.26%"
+  },
+  "wav2vec2": {
+    "dataset": "RAVDESS speech audio",
+    "accuracy": "86.81%"
+  }
 }
 ```
 
-2) Performans metrikleri
-GET /models/performance
+### 3) Tahmin Alma
+**POST** `/predict`  
 
-3) Tahmin al (form-data)
-POST /predict
+Form-data ile gönderilmesi gereken alanlar:
+- **file** → dosya (desteklenen formatlar: `.png`, `.mp4`, `.wav`)  
+- **model_name** → `googlenet | efficientfer | ferformer | fast_rcnn | mobilevit | resnet18_video | wav2vec2`  
+- **category** → `image | video | audio`  
 
-
-Alanlar:
-
-file: dosya (.png, .mp4, .wav)
-
-model_name: googlenet | efficientfer | ferformer | fast_rcnn | mobilevit | resnet18_video | wav2vec2
-
-category: image | video | audio
+Örnek kullanım (cURL):  
+```bash
+curl -X POST "http://127.0.0.1:8000/predict" \
+  -F "file=@test/image/example.png" \
+  -F "model_name=googlenet" \
+  -F "category=image"
